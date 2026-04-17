@@ -7,7 +7,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['logo.png', 'robots.txt'],
+      includeAssets: ['logo.png', 'icon.jpg', 'robots.txt'],
       manifest: {
         name: 'UrgenteYa.cl',
         short_name: 'UrgenteYa',
@@ -18,9 +18,9 @@ export default defineConfig({
         start_url: '/',
         lang: 'es',
         icons: [
-          { src: '/logo.png', sizes: '192x192', type: 'image/png' },
-          { src: '/logo.png', sizes: '512x512', type: 'image/png' },
-          { src: '/logo.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: '/icon.jpg', sizes: '192x192', type: 'image/jpeg' },
+          { src: '/icon.jpg', sizes: '512x512', type: 'image/jpeg' },
+          { src: '/icon.jpg', sizes: '512x512', type: 'image/jpeg', purpose: 'maskable' },
         ],
         shortcuts: [
           {
