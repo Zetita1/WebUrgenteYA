@@ -179,7 +179,7 @@ export default function Home() {
           </div>
 
           <h1 className="text-4xl md:text-5xl font-black mb-4 leading-tight drop-shadow-sm">
-            Maestros y técnicos de confianza<br />cerca de ti
+            Maestros y técnicos confiables<br />cerca de ti
           </h1>
           <p className="text-orange-50 text-lg mb-10 max-w-lg mx-auto drop-shadow-sm">
             Electricistas, gasfíteres, refrigeración y más — contacto directo, sin intermediarios
