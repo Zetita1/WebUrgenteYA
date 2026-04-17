@@ -137,8 +137,6 @@ function initializeSchema() {
       ON technicians(status, expires_at);
     CREATE INDEX IF NOT EXISTS idx_technicians_search
       ON technicians(status, comuna, category);
-    CREATE INDEX IF NOT EXISTS idx_reviews_tech_status
-      ON reviews(technician_id, status);
     CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_token
       ON password_reset_tokens(token);
     CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_expires
@@ -160,6 +158,7 @@ function initializeSchema() {
     // Las reseñas viejas (si hay) se aprueban automáticamente
     db.exec("UPDATE reviews SET status = 'approved'");
   }
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_reviews_tech_status ON reviews(technician_id, status);`);
 
   // Seed/actualizar planes
   const planCount = db.prepare('SELECT COUNT(*) as cnt FROM plans').get();
