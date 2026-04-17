@@ -1,0 +1,30 @@
+services:
+
+  backend:
+    build: ./backend
+    container_name: urgentya_backend
+    restart: always
+    env_file: ./backend/.env
+    volumes:
+      - db_data:/app/database.sqlite
+      - uploads_data:/app/uploads
+    networks:
+      - urgentya_net
+
+  frontend:
+    build: ./frontend
+    container_name: urgentya_frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - urgentya_net
+
+volumes:
+  db_data:
+  uploads_data:
+
+networks:
+  urgentya_net:

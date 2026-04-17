@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Allow: /tecnicos
+Allow: /maestros/
+Disallow: /admin
+Disallow: /mi-perfil
+Disallow: /login
+Disallow: /registro
+Disallow: /olvide-contrasena
+Disallow: /recuperar-contrasena
+
+# Crawl-delay para no sobrecargar el servidor
+Crawl-delay: 1
+
+Sitemap: https://urgenteya.cl/sitemap.xml

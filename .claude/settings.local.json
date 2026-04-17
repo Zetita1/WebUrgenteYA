@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node src/index.js)",
+      "Bash(npm start:*)",
+      "Bash(powershell -Command \"Get-Process node -ErrorAction SilentlyContinue | Select-Object Id, ProcessName, StartTime\")",
+      "Bash(taskkill /PID 16772 /F)",
+      "Bash(taskkill /PID 17100 /F)",
+      "Bash(powershell -Command \"Stop-Process -Id 16772 -Force; Stop-Process -Id 17100 -Force; Write-Host 'Procesos terminados'\")",
+      "Bash(powershell -Command \"Get-Process node -ErrorAction SilentlyContinue | Select-Object Id, StartTime\")",
+      "Bash(curl -s -o /dev/null -w \"HTTP: %{http_code}\\\\n\" --max-time 3 http://localhost:3001/api/technicians)",
+      "Bash(netstat -ano)",
+      "Bash(powershell -Command \"Get-Process -Id 14056 | Select-Object Id, ProcessName, StartTime\")",
+      "Bash(curl -sv --max-time 3 http://localhost:3001/api/technicians)",
+      "Bash(curl -sv --max-time 3 -H \"Origin: http://localhost:5173\" http://localhost:3001/api/technicians)",
+      "Bash(node -e \"require\\('./src/utils/mailer.js'\\); console.log\\('OK - mailer carga sin errores'\\)\")",
+      "Bash(node -e \"require\\('./src/utils/mailer.js'\\); console.log\\('OK mailer'\\)\")",
+      "WebSearch"
+    ]
+  }
+}
