@@ -14,7 +14,7 @@ export default defineConfig({
         description: 'Encuentra maestros de confianza en Chile. Electricistas, gasfíteres y más.',
         theme_color: '#f97316',
         background_color: '#ffffff',
-        display: 'standalone',
+        display: 'browser',
         start_url: '/',
         lang: 'es',
         icons: [
