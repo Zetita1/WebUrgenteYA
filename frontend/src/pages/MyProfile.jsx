@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { getMyTechnicianProfile, updateMyProfile, uploadImages, deleteImage } from '../services/api';
+import { getMyTechnicianProfile, updateMyProfile, uploadImages, deleteImage, reorderImages } from '../services/api';
 
 const ADMIN_WHATSAPP = import.meta.env.VITE_ADMIN_WHATSAPP || '';
 
@@ -50,6 +50,19 @@ function ImageUploader({ techId, images, onUpdate, plan }) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [dragOver, setDragOver] = useState(false);
+
+  async function handleMove(index, direction) {
+    const newImages = [...images];
+    const swapIdx = index + direction;
+    if (swapIdx < 0 || swapIdx >= newImages.length) return;
+    [newImages[index], newImages[swapIdx]] = [newImages[swapIdx], newImages[index]];
+    try {
+      await reorderImages(techId, newImages.map(i => i.filename));
+      onUpdate();
+    } catch {
+      setError('No se pudo reordenar las fotos.');
+    }
+  }
 
   const MAX_IMAGES = PHOTO_LIMITS[plan] ?? 3;
   const remaining = MAX_IMAGES - images.length;
@@ -126,9 +139,26 @@ function ImageUploader({ techId, images, onUpdate, plan }) {
               />
               {idx === 0 && (
                 <span className="absolute top-1 left-1 bg-brand-500 text-white text-xs font-semibold px-2 py-0.5 rounded">
-                  Principal
+                  Portada
                 </span>
               )}
+              {/* Botones mover */}
+              <div className="absolute bottom-1 left-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                {idx > 0 && (
+                  <button
+                    onClick={() => handleMove(idx, -1)}
+                    className="bg-white text-gray-700 rounded p-1 shadow text-xs font-bold"
+                    title="Mover a la izquierda"
+                  >◀</button>
+                )}
+                {idx < images.length - 1 && (
+                  <button
+                    onClick={() => handleMove(idx, 1)}
+                    className="bg-white text-gray-700 rounded p-1 shadow text-xs font-bold"
+                    title="Mover a la derecha"
+                  >▶</button>
+                )}
+              </div>
               <button
                 onClick={() => handleDelete(img.filename)}
                 className="absolute top-1 right-1 bg-red-600 text-white rounded p-1 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -210,6 +240,7 @@ function EditProfileForm({ tech, onSaved }) {
     whatsapp: tech.whatsapp || '',
     description: tech.description || '',
     is_urgent_24h: !!tech.is_urgent_24h,
+    covers_rm: !!tech.covers_rm,
     years_experience: tech.years_experience ?? '',
     price_from: tech.price_from || '',
     availability: tech.availability || '',
@@ -354,6 +385,20 @@ function EditProfileForm({ tech, onSaved }) {
           <div>
             <span className="text-sm font-medium text-gray-700 block">Servicio urgente 24 horas</span>
             <span className="text-xs text-gray-400">Estoy disponible para emergencias a cualquier hora</span>
+          </div>
+        </label>
+
+        {/* Cobertura RM */}
+        <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+          <input
+            type="checkbox"
+            checked={form.covers_rm}
+            onChange={e => update('covers_rm', e.target.checked)}
+            className="w-4 h-4 mt-0.5 text-brand-500 rounded flex-shrink-0"
+          />
+          <div>
+            <span className="text-sm font-medium text-gray-700 block">Atiendo en toda la Región Metropolitana</span>
+            <span className="text-xs text-gray-400">Puedo desplazarme a cualquier comuna de Santiago</span>
           </div>
         </label>
 

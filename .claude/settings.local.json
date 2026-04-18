@@ -15,7 +15,8 @@
       "Bash(curl -sv --max-time 3 -H \"Origin: http://localhost:5173\" http://localhost:3001/api/technicians)",
       "Bash(node -e \"require\\('./src/utils/mailer.js'\\); console.log\\('OK - mailer carga sin errores'\\)\")",
       "Bash(node -e \"require\\('./src/utils/mailer.js'\\); console.log\\('OK mailer'\\)\")",
-      "WebSearch"
+      "WebSearch",
+      "Bash(xargs grep *)"
     ]
   }
 }

@@ -41,6 +41,8 @@ export const uploadImages = (id, formData) => api.post(`/technicians/${id}/image
   headers: { 'Content-Type': 'multipart/form-data' }
 });
 export const deleteImage = (id, filename) => api.delete(`/technicians/${id}/images/${filename}`);
+export const reorderImages = (id, order) => api.put(`/technicians/${id}/images/reorder`, { order });
+export const adminDeleteImage = (id, filename) => api.delete(`/admin/technicians/${id}/images/${filename}`);
 
 // ─── Admin ────────────────────────────────────────────────────────────────────
 export const adminGetTechnicians = (params) => api.get('/admin/technicians', { params });

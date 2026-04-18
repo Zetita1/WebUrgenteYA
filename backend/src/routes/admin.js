@@ -236,6 +236,21 @@ router.post('/technicians/:id/expire', (req, res) => {
   res.json({ message: 'Técnico expirado' });
 });
 
+// DELETE foto de técnico (desde admin)
+router.delete('/technicians/:id/images/:filename', (req, res) => {
+  const db = getDb();
+  const { id, filename } = req.params;
+  const img = db.prepare('SELECT * FROM technician_images WHERE technician_id = ? AND filename = ?').get(id, filename);
+  if (!img) return res.status(404).json({ error: 'Imagen no encontrada' });
+
+  db.prepare('DELETE FROM technician_images WHERE technician_id = ? AND filename = ?').run(id, filename);
+
+  const filePath = path.join(__dirname, '../../uploads/technicians', filename);
+  fs.unlink(filePath, () => {});
+
+  res.json({ message: 'Imagen eliminada' });
+});
+
 // DELETE técnico
 router.delete('/technicians/:id', (req, res) => {
   const db = getDb();

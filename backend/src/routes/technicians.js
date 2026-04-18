@@ -52,7 +52,7 @@ router.get('/me', authMiddleware, (req, res) => {
 
   if (!tech) return res.status(404).json({ error: 'No tienes un perfil de técnico asociado' });
 
-  const images = db.prepare('SELECT filename FROM technician_images WHERE technician_id = ?').all(tech.id);
+  const images = db.prepare('SELECT filename FROM technician_images WHERE technician_id = ? ORDER BY sort_order ASC, created_at ASC').all(tech.id);
   const reviews = db.prepare(
     "SELECT id, rating, comment, reviewer_name, created_at FROM reviews WHERE technician_id = ? AND status = 'approved' ORDER BY created_at DESC LIMIT 10"
   ).all(tech.id);
@@ -68,12 +68,12 @@ router.put('/me', authMiddleware, (req, res) => {
   const tech = db.prepare('SELECT * FROM technicians WHERE user_id = ?').get(req.user.id);
   if (!tech) return res.status(404).json({ error: 'Perfil no encontrado' });
 
-  const { phone, whatsapp, description, is_urgent_24h,
+  const { phone, whatsapp, description, is_urgent_24h, covers_rm,
           years_experience, price_from, availability, services_list } = req.body;
 
   db.prepare(`
     UPDATE technicians SET
-      phone = ?, whatsapp = ?, description = ?, is_urgent_24h = ?,
+      phone = ?, whatsapp = ?, description = ?, is_urgent_24h = ?, covers_rm = ?,
       years_experience = ?, price_from = ?, availability = ?, services_list = ?
     WHERE user_id = ?
   `).run(
@@ -81,6 +81,7 @@ router.put('/me', authMiddleware, (req, res) => {
     whatsapp ?? tech.whatsapp,
     description ?? tech.description,
     is_urgent_24h !== undefined ? (is_urgent_24h ? 1 : 0) : tech.is_urgent_24h,
+    covers_rm !== undefined ? (covers_rm ? 1 : 0) : tech.covers_rm,
     years_experience !== undefined ? (years_experience || null) : tech.years_experience,
     price_from !== undefined ? (price_from || null) : tech.price_from,
     availability !== undefined ? (availability || null) : tech.availability,
@@ -206,7 +207,7 @@ router.get('/:id', (req, res) => {
 
   if (!technician) return res.status(404).json({ error: 'Técnico no encontrado' });
 
-  const images = db.prepare('SELECT filename FROM technician_images WHERE technician_id = ?').all(req.params.id);
+  const images = db.prepare('SELECT filename FROM technician_images WHERE technician_id = ? ORDER BY sort_order ASC, created_at ASC').all(req.params.id);
   const reviews = db.prepare(
     "SELECT id, rating, comment, reviewer_name, created_at FROM reviews WHERE technician_id = ? AND status = 'approved' ORDER BY created_at DESC LIMIT 10"
   ).all(req.params.id);
@@ -347,6 +348,32 @@ router.delete('/:id/images/:filename', authMiddleware, (req, res) => {
   fs.unlink(filePath).catch(() => {}); // No bloquea si el archivo ya no existe
 
   res.json({ message: 'Imagen eliminada' });
+});
+
+// PUT reordenar fotos
+router.put('/:id/images/reorder', authMiddleware, (req, res) => {
+  const db = getDb();
+  const tech = db.prepare('SELECT * FROM technicians WHERE id = ?').get(req.params.id);
+  if (!tech) return res.status(404).json({ error: 'Técnico no encontrado' });
+  if (req.user.role !== 'admin' && tech.user_id !== req.user.id) {
+    return res.status(403).json({ error: 'No autorizado' });
+  }
+
+  const { order } = req.body; // array de filenames en el orden deseado
+  if (!Array.isArray(order)) return res.status(400).json({ error: 'order debe ser un array' });
+
+  const update = db.prepare('UPDATE technician_images SET sort_order = ? WHERE technician_id = ? AND filename = ?');
+  const updateMany = db.transaction((items) => {
+    items.forEach((filename, idx) => update.run(idx, req.params.id, filename));
+  });
+  updateMany(order);
+
+  // Actualizar image_url con la primera foto
+  if (order.length > 0) {
+    db.prepare('UPDATE technicians SET image_url = ? WHERE id = ?').run(`/uploads/technicians/${order[0]}`, req.params.id);
+  }
+
+  res.json({ ok: true });
 });
 
 module.exports = router;

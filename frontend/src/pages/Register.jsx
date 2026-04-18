@@ -28,7 +28,7 @@ export default function Register() {
   const [form, setForm] = useState({
     email: '', password: '', name: '', phone: '',
     whatsapp: '', comuna: '', category: '', description: '',
-    is_urgent_24h: false, years_experience: '', price_from: '',
+    is_urgent_24h: false, covers_rm: false, years_experience: '', price_from: '',
     availability: '', services_list: ''
   });
   const [error, setError] = useState('');
@@ -244,6 +244,20 @@ export default function Register() {
               <div>
                 <span className="text-sm font-medium text-gray-700 block">Servicio urgente 24 horas</span>
                 <span className="text-xs text-gray-400">Estoy disponible para emergencias a cualquier hora</span>
+              </div>
+            </label>
+
+            {/* Cobertura RM */}
+            <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+              <input
+                type="checkbox"
+                checked={form.covers_rm}
+                onChange={e => update('covers_rm', e.target.checked)}
+                className="w-4 h-4 mt-0.5 text-brand-500 rounded flex-shrink-0"
+              />
+              <div>
+                <span className="text-sm font-medium text-gray-700 block">Atiendo en toda la Región Metropolitana</span>
+                <span className="text-xs text-gray-400">Puedo desplazarme a cualquier comuna de Santiago</span>
               </div>
             </label>
 

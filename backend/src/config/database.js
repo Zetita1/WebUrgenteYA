@@ -150,6 +150,11 @@ function initializeSchema() {
   if (!cols.includes('availability'))      db.exec("ALTER TABLE technicians ADD COLUMN availability TEXT");
   if (!cols.includes('services_list'))     db.exec("ALTER TABLE technicians ADD COLUMN services_list TEXT");
   if (!cols.includes('expiry_notified'))   db.exec("ALTER TABLE technicians ADD COLUMN expiry_notified INTEGER NOT NULL DEFAULT 0");
+  if (!cols.includes('covers_rm'))         db.exec("ALTER TABLE technicians ADD COLUMN covers_rm INTEGER NOT NULL DEFAULT 0");
+
+  // Migración imágenes: agregar sort_order si no existe
+  const imgCols = db.prepare("PRAGMA table_info(technician_images)").all().map(c => c.name);
+  if (!imgCols.includes('sort_order'))     db.exec("ALTER TABLE technician_images ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0");
 
   // Migración reseñas: agregar columna status si no existe
   const reviewCols = db.prepare("PRAGMA table_info(reviews)").all().map(c => c.name);
