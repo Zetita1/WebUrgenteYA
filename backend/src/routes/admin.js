@@ -64,7 +64,7 @@ router.get('/technicians/:id', (req, res) => {
 
   if (!tech) return res.status(404).json({ error: 'Técnico no encontrado' });
 
-  const images = db.prepare('SELECT filename FROM technician_images WHERE technician_id = ?').all(req.params.id);
+  const images = db.prepare('SELECT filename FROM technician_images WHERE technician_id = ? ORDER BY sort_order ASC, created_at ASC').all(req.params.id);
   const reviews = db.prepare('SELECT * FROM reviews WHERE technician_id = ? ORDER BY created_at DESC').all(req.params.id);
 
   res.json({ ...tech, images, reviews });
