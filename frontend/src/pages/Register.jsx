@@ -111,12 +111,21 @@ export default function Register() {
     valid.forEach(f => formData.append('images', f));
     try {
       const res = await uploadImages(techId, formData, p => setUploadProgress(p));
-      setPhotos(prev => [
-        ...prev,
-        ...res.data.files.map(fn => ({ filename: fn, url: `/uploads/technicians/${fn}` }))
-      ]);
+      const saved = res.data.files || [];
+      if (saved.length > 0) {
+        setPhotos(prev => [
+          ...prev,
+          ...saved.map(fn => ({ filename: fn, url: `/uploads/technicians/${fn}` }))
+        ]);
+      }
+      if (res.data.warning) {
+        setUploadError(`⚠️ ${res.data.warning} Las demás se subieron correctamente.`);
+      }
+      if (saved.length === 0) {
+        setUploadError('No se pudieron procesar las fotos. Intenta con otras imágenes.');
+      }
     } catch (err) {
-      setUploadError(err.response?.data?.error || 'Error al subir fotos. Intenta de nuevo.');
+      setUploadError(err.response?.data?.error || 'Error al subir fotos. Intenta con otras imágenes.');
     } finally {
       setUploading(false);
       setUploadProgress(0);

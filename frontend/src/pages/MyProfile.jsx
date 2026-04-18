@@ -96,10 +96,11 @@ function ImageUploader({ techId, images, onUpdate, plan }) {
     validFiles.forEach(f => formData.append('images', f));
 
     try {
-      await uploadImages(techId, formData);
+      const res = await uploadImages(techId, formData);
+      if (res.data.warning) setError(`⚠️ ${res.data.warning}`);
       onUpdate();
     } catch (err) {
-      setError(err.response?.data?.error || 'Error al subir imágenes.');
+      setError(err.response?.data?.error || 'Error al subir imágenes. Intenta con otras fotos.');
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = '';
