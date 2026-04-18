@@ -274,19 +274,20 @@ router.post('/:id/contact', (req, res) => {
   const tech = db.prepare('SELECT id FROM technicians WHERE id = ? AND status = ?').get(req.params.id, 'active');
   if (!tech) return res.status(404).json({ error: 'Técnico no encontrado' });
 
-  // Hash de la IP para privacidad (no guardamos la IP directamente)
+  // Si el admin hace clic, no contar (no distorsiona estadísticas)
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (token) {
+      const jwt = require('jsonwebtoken');
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      if (decoded.role === 'admin') return res.json({ ok: true });
+    }
+  } catch {}
+
+  // Registrar clic sin deduplicación por IP
   const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip || '';
   const ipHash = crypto.createHash('sha256').update(ip + process.env.JWT_SECRET).digest('hex').slice(0, 16);
-
-  // Deduplicación: 1 clic por IP por técnico por día
-  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-  const alreadyToday = db.prepare(
-    "SELECT id FROM contact_clicks WHERE technician_id = ? AND ip_hash = ? AND DATE(clicked_at) = ?"
-  ).get(req.params.id, ipHash, today);
-
-  if (!alreadyToday) {
-    db.prepare('INSERT INTO contact_clicks (technician_id, ip_hash) VALUES (?, ?)').run(req.params.id, ipHash);
-  }
+  db.prepare('INSERT INTO contact_clicks (technician_id, ip_hash) VALUES (?, ?)').run(req.params.id, ipHash);
 
   res.json({ ok: true });
 });
