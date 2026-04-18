@@ -103,7 +103,7 @@ export default function Register() {
     const valid = Array.from(files).filter(f => ['image/jpeg', 'image/jpg', 'image/png'].includes(f.type));
     if (valid.length !== files.length) { setUploadError('Solo se permiten imágenes JPG o PNG.'); return; }
     if (valid.length > remaining) { setUploadError(`Puedes subir ${remaining} foto${remaining !== 1 ? 's' : ''} más.`); return; }
-    if (valid.find(f => f.size > 10 * 1024 * 1024)) { setUploadError('Cada imagen debe pesar menos de 10MB.'); return; }
+    if (valid.find(f => f.size > 25 * 1024 * 1024)) { setUploadError('Cada imagen debe pesar menos de 25MB.'); return; }
 
     setUploading(true);
     setUploadProgress(0);
@@ -258,7 +258,7 @@ export default function Register() {
                     {photos.length === 0 ? 'Arrastra fotos aquí o haz clic para subir' : 'Agregar más fotos'}
                   </p>
                   <p className="text-xs text-gray-400 mt-1">
-                    JPG o PNG · máx. 10MB · puedes subir {remaining} foto{remaining !== 1 ? 's' : ''} más
+                    JPG o PNG · máx. 25MB · puedes subir {remaining} foto{remaining !== 1 ? 's' : ''} más
                   </p>
                   <p className="text-xs text-brand-500 font-medium mt-1">
                     💡 Puedes seleccionar varias fotos a la vez

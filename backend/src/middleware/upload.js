@@ -8,7 +8,7 @@ const ALLOWED_MIME = [
   'image/heic', 'image/heif',          // iPhone
   'image/bmp', 'image/tiff',           // otros formatos comunes
 ];
-const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_SIZE = 25 * 1024 * 1024; // 25MB (fotos de cámara pueden ser grandes)
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {

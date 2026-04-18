@@ -85,9 +85,9 @@ function ImageUploader({ techId, images, onUpdate, plan }) {
       return;
     }
 
-    const oversize = validFiles.find(f => f.size > 10 * 1024 * 1024);
+    const oversize = validFiles.find(f => f.size > 25 * 1024 * 1024);
     if (oversize) {
-      setError('Cada imagen debe pesar menos de 10MB.');
+      setError('Cada imagen debe pesar menos de 25MB.');
       return;
     }
 
@@ -209,7 +209,7 @@ function ImageUploader({ techId, images, onUpdate, plan }) {
                 Arrastra fotos aquí o haz clic para seleccionar
               </p>
               <p className="text-xs text-gray-400">
-                JPG o PNG — máx. 10MB por foto — puedes subir {remaining} más
+                JPG o PNG — máx. 25MB por foto — puedes subir {remaining} más
               </p>
               <p className="text-xs text-brand-500 font-medium">
                 💡 Puedes seleccionar varias fotos a la vez

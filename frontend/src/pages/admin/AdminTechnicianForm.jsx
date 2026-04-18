@@ -49,7 +49,7 @@ function ImageManager({ techId, images, onUpdate }) {
     );
     if (validFiles.length !== files.length) { setError('Solo JPG o PNG.'); return; }
     if (validFiles.length > remaining) { setError(`Máximo ${remaining} imagen${remaining !== 1 ? 'es' : ''} más.`); return; }
-    if (validFiles.find(f => f.size > 10 * 1024 * 1024)) { setError('Máx. 10MB por foto.'); return; }
+    if (validFiles.find(f => f.size > 25 * 1024 * 1024)) { setError('Máx. 25MB por foto.'); return; }
 
     setUploading(true);
     const formData = new FormData();
@@ -147,7 +147,7 @@ function ImageManager({ techId, images, onUpdate }) {
           ) : (
             <>
               <p className="text-sm text-gray-500">
-                Arrastra fotos o haz clic — JPG/PNG máx. 10MB — puedes subir {remaining} más
+                Arrastra fotos o haz clic — JPG/PNG máx. 25MB — puedes subir {remaining} más
               </p>
               <p className="text-xs text-brand-500 font-medium mt-1">
                 💡 Puedes seleccionar varias fotos a la vez
