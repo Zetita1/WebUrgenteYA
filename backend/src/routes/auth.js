@@ -21,7 +21,7 @@ const forgotPasswordLimiter = rateLimit({
 // Registro de técnico
 router.post('/register', (req, res) => {
   const { email, password, name, phone, whatsapp, comuna, category, description, is_urgent_24h,
-          years_experience, price_from, availability, services_list } = req.body;
+          covers_rm, years_experience, price_from, availability, services_list } = req.body;
 
   if (!email || !password || !name || !phone || !comuna || !category) {
     return res.status(400).json({ error: 'Campos requeridos: email, password, name, phone, comuna, category' });
@@ -52,10 +52,10 @@ router.post('/register', (req, res) => {
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + 30);
 
-  db.prepare(`
+  const techResult = db.prepare(`
     INSERT INTO technicians (user_id, name, phone, whatsapp, comuna, category, description, is_urgent_24h,
-      years_experience, price_from, availability, services_list, status, plan, expires_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', 'free', ?)
+      covers_rm, years_experience, price_from, availability, services_list, status, plan, expires_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', 'free', ?)
   `).run(
     userResult.lastInsertRowid,
     name.trim(),
@@ -65,6 +65,7 @@ router.post('/register', (req, res) => {
     category.trim(),
     description ? description.trim() : '',
     is_urgent_24h ? 1 : 0,
+    covers_rm ? 1 : 0,
     years_experience ? (isNaN(parseInt(years_experience, 10)) ? null : parseInt(years_experience, 10)) : null,
     price_from ? price_from.trim() : null,
     availability ? availability.trim() : null,
@@ -74,10 +75,21 @@ router.post('/register', (req, res) => {
 
   // Emails (no bloqueantes)
   const techData = db.prepare('SELECT t.*, u.email FROM technicians t LEFT JOIN users u ON u.id = t.user_id WHERE t.user_id = ?').get(userResult.lastInsertRowid);
-  mailBienvenida(techData).catch(() => {});     // al maestro: gracias por registrarte
-  mailNuevoRegistro(techData).catch(() => {});  // al admin: nuevo registro pendiente
+  mailBienvenida(techData).catch(() => {});
+  mailNuevoRegistro(techData).catch(() => {});
 
-  res.status(201).json({ message: 'Registro exitoso. Tu cuenta será revisada por el administrador.' });
+  // Devolver token para que el maestro pueda subir fotos de inmediato
+  const token = jwt.sign(
+    { id: userResult.lastInsertRowid, email: email.toLowerCase().trim(), role: 'technician' },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+  );
+
+  res.status(201).json({
+    message: 'Registro exitoso.',
+    token,
+    technicianId: techResult.lastInsertRowid,
+  });
 });
 
 // Login

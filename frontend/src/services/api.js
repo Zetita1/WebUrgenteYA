@@ -37,8 +37,12 @@ export const getTechnicians = (params) => api.get('/technicians', { params });
 export const getTechnician = (id) => api.get(`/technicians/${id}`);
 export const createReview = (id, data) => api.post(`/technicians/${id}/reviews`, data);
 export const recordContact = (id) => api.post(`/technicians/${id}/contact`);
-export const uploadImages = (id, formData) => api.post(`/technicians/${id}/images`, formData, {
-  headers: { 'Content-Type': 'multipart/form-data' }
+export const uploadImages = (id, formData, onUploadProgress) => api.post(`/technicians/${id}/images`, formData, {
+  headers: { 'Content-Type': 'multipart/form-data' },
+  timeout: 60000,
+  ...(onUploadProgress && {
+    onUploadProgress: e => onUploadProgress(Math.round((e.loaded * 100) / e.total))
+  }),
 });
 export const deleteImage = (id, filename) => api.delete(`/technicians/${id}/images/${filename}`);
 export const reorderImages = (id, order) => api.put(`/technicians/${id}/images/reorder`, { order });

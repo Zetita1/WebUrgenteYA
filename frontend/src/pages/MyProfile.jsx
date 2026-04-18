@@ -210,6 +210,9 @@ function ImageUploader({ techId, images, onUpdate, plan }) {
               <p className="text-xs text-gray-400">
                 JPG o PNG — máx. 10MB por foto — puedes subir {remaining} más
               </p>
+              <p className="text-xs text-brand-500 font-medium">
+                💡 Puedes seleccionar varias fotos a la vez
+              </p>
             </div>
           )}
         </div>

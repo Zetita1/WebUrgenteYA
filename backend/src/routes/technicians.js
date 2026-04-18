@@ -296,7 +296,21 @@ router.post('/:id/contact', (req, res) => {
 const PHOTO_LIMITS = { free: 5, premium: 5, top: 10 };
 
 // POST subir imágenes (solo técnico autenticado)
-router.post('/:id/images', authMiddleware, upload.array('images', 10), async (req, res) => {
+router.post('/:id/images', authMiddleware, (req, res, next) => {
+  // Manejo de errores de multer (archivo muy grande, formato inválido, etc.)
+  upload.array('images', 10)(req, res, (err) => {
+    if (err) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: 'Cada imagen debe pesar menos de 10MB.' });
+      }
+      if (err.code === 'LIMIT_FILE_COUNT') {
+        return res.status(400).json({ error: 'Máximo 10 fotos por subida.' });
+      }
+      return res.status(400).json({ error: err.message || 'Error al procesar las imágenes.' });
+    }
+    next();
+  });
+}, async (req, res) => {
   const db = getDb();
   const tech = db.prepare('SELECT * FROM technicians WHERE id = ?').get(req.params.id);
   if (!tech) return res.status(404).json({ error: 'Técnico no encontrado' });
@@ -306,16 +320,20 @@ router.post('/:id/images', authMiddleware, upload.array('images', 10), async (re
   }
 
   if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-    return res.status(400).json({ error: 'No se recibieron imágenes válidas' });
+    return res.status(400).json({ error: 'No se recibieron imágenes válidas. Solo JPG o PNG.' });
   }
 
   const maxPhotos = req.user.role === 'admin' ? 10 : (PHOTO_LIMITS[tech.plan] ?? 3);
   const existingCount = db.prepare('SELECT COUNT(*) as cnt FROM technician_images WHERE technician_id = ?').get(req.params.id);
   if (existingCount.cnt + req.files.length > maxPhotos) {
-    return res.status(400).json({ error: `Tu plan ${tech.plan} permite máximo ${maxPhotos} fotos` });
+    // Limpiar archivos subidos si no caben
+    const fs = require('fs');
+    req.files.forEach(f => { try { fs.unlinkSync(f.path); } catch {} });
+    return res.status(400).json({ error: `Límite alcanzado. Tu plan permite máximo ${maxPhotos} fotos.` });
   }
 
   const saved = [];
+  const failed = [];
   for (const file of req.files) {
     try {
       await processImage(file.path);
@@ -323,6 +341,8 @@ router.post('/:id/images', authMiddleware, upload.array('images', 10), async (re
       saved.push(file.filename);
     } catch (err) {
       console.error('Error procesando imagen:', err.message);
+      failed.push(file.originalname || file.filename);
+      try { require('fs').unlinkSync(file.path); } catch {}
     }
   }
 
@@ -330,7 +350,15 @@ router.post('/:id/images', authMiddleware, upload.array('images', 10), async (re
     db.prepare('UPDATE technicians SET image_url = ? WHERE id = ?').run(`/uploads/technicians/${saved[0]}`, req.params.id);
   }
 
-  res.json({ uploaded: saved.length, files: saved });
+  if (saved.length === 0) {
+    return res.status(500).json({ error: 'No se pudo procesar ninguna imagen. Intenta de nuevo.' });
+  }
+
+  res.json({
+    uploaded: saved.length,
+    files: saved,
+    ...(failed.length > 0 && { warning: `${failed.length} foto(s) no se pudieron procesar.` })
+  });
 });
 
 // DELETE imagen
