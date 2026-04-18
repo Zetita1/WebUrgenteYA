@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   adminCreateTechnician, adminUpdateTechnician, adminGetTechnician,
-  uploadImages, deleteImage, adminGetTechnicianHistory
+  uploadImages, adminDeleteImage, reorderImages, adminGetTechnicianHistory
 } from '../../services/api';
 
 const CATEGORIES = [
@@ -66,8 +66,17 @@ function ImageManager({ techId, images, onUpdate }) {
   }
 
   async function handleDelete(filename) {
-    try { await deleteImage(techId, filename); onUpdate(); }
+    try { await adminDeleteImage(techId, filename); onUpdate(); }
     catch { setError('No se pudo eliminar.'); }
+  }
+
+  async function handleMove(index, direction) {
+    const newImages = [...images];
+    const swapIdx = index + direction;
+    if (swapIdx < 0 || swapIdx >= newImages.length) return;
+    [newImages[index], newImages[swapIdx]] = [newImages[swapIdx], newImages[index]];
+    try { await reorderImages(techId, newImages.map(i => i.filename)); onUpdate(); }
+    catch { setError('No se pudo reordenar.'); }
   }
 
   return (
@@ -87,9 +96,20 @@ function ImageManager({ techId, images, onUpdate }) {
               />
               {idx === 0 && (
                 <span className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs text-center py-0.5">
-                  Principal
+                  Portada
                 </span>
               )}
+              {/* Botones mover */}
+              <div className="absolute top-1 left-1 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                {idx > 0 && (
+                  <button type="button" onClick={() => handleMove(idx, -1)}
+                    className="bg-white text-gray-700 rounded px-1 shadow text-xs font-bold" title="Mover izquierda">◀</button>
+                )}
+                {idx < images.length - 1 && (
+                  <button type="button" onClick={() => handleMove(idx, 1)}
+                    className="bg-white text-gray-700 rounded px-1 shadow text-xs font-bold" title="Mover derecha">▶</button>
+                )}
+              </div>
               <button
                 type="button"
                 onClick={() => handleDelete(img.filename)}
