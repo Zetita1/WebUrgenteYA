@@ -44,10 +44,8 @@ function ImageManager({ techId, images, onUpdate }) {
   async function handleFiles(files) {
     if (!files || files.length === 0) return;
     setError('');
-    const validFiles = Array.from(files).filter(f =>
-      ['image/jpeg', 'image/jpg', 'image/png'].includes(f.type)
-    );
-    if (validFiles.length !== files.length) { setError('Solo JPG o PNG.'); return; }
+    const validFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+    if (validFiles.length !== files.length) { setError('Solo se permiten imágenes.'); return; }
     if (validFiles.length > remaining) { setError(`Máximo ${remaining} imagen${remaining !== 1 ? 'es' : ''} más.`); return; }
     if (validFiles.find(f => f.size > 25 * 1024 * 1024)) { setError('Máx. 25MB por foto.'); return; }
 
@@ -135,7 +133,7 @@ function ImageManager({ techId, images, onUpdate }) {
             dragOver ? 'border-brand-400 bg-brand-50' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
           }`}
         >
-          <input ref={inputRef} type="file" accept="image/jpeg,image/jpg,image/png" multiple className="hidden" onChange={e => handleFiles(e.target.files)} />
+          <input ref={inputRef} type="file" accept="image/*" multiple className="hidden" onChange={e => handleFiles(e.target.files)} />
           {uploading ? (
             <div className="flex items-center justify-center gap-2 text-gray-500 text-sm">
               <svg className="w-4 h-4 animate-spin text-brand-500" fill="none" viewBox="0 0 24 24">

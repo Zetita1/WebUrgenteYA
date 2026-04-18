@@ -71,12 +71,10 @@ function ImageUploader({ techId, images, onUpdate, plan }) {
     if (!files || files.length === 0) return;
     setError('');
 
-    const validFiles = Array.from(files).filter(f =>
-      ['image/jpeg', 'image/jpg', 'image/png'].includes(f.type)
-    );
+    const validFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
 
     if (validFiles.length !== files.length) {
-      setError('Solo se permiten imágenes JPG o PNG.');
+      setError('Solo se permiten imágenes.');
       return;
     }
 
@@ -187,7 +185,7 @@ function ImageUploader({ techId, images, onUpdate, plan }) {
           <input
             ref={inputRef}
             type="file"
-            accept="image/jpeg,image/jpg,image/png"
+            accept="image/*"
             multiple
             className="hidden"
             onChange={e => handleFiles(e.target.files)}

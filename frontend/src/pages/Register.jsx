@@ -100,8 +100,8 @@ export default function Register() {
   async function handlePhotoFiles(files) {
     if (!files || files.length === 0) return;
     setUploadError('');
-    const valid = Array.from(files).filter(f => ['image/jpeg', 'image/jpg', 'image/png'].includes(f.type));
-    if (valid.length !== files.length) { setUploadError('Solo se permiten imágenes JPG o PNG.'); return; }
+    const valid = Array.from(files).filter(f => f.type.startsWith('image/'));
+    if (valid.length !== files.length) { setUploadError('Solo se permiten imágenes.'); return; }
     if (valid.length > remaining) { setUploadError(`Puedes subir ${remaining} foto${remaining !== 1 ? 's' : ''} más.`); return; }
     if (valid.find(f => f.size > 25 * 1024 * 1024)) { setUploadError('Cada imagen debe pesar menos de 25MB.'); return; }
 
@@ -229,7 +229,7 @@ export default function Register() {
               <input
                 ref={inputRef}
                 type="file"
-                accept="image/jpeg,image/jpg,image/png"
+                accept="image/*"
                 multiple
                 className="hidden"
                 onChange={e => handlePhotoFiles(e.target.files)}
