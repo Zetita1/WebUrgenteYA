@@ -5,10 +5,17 @@ const fs = require('fs');
 const UPLOADS_DIR = path.join(__dirname, '../../uploads/technicians');
 
 async function processImage(filePath) {
+  // Verificar que el archivo existe antes de procesar
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`Archivo no encontrado: ${filePath}`);
+  }
+
   const outputPath = filePath.replace(/\.[^.]+$/, '_proc.jpg');
+
   await sharp(filePath)
-    .resize({ width: 800, withoutEnlargement: true })
-    .jpeg({ quality: 70 })
+    .rotate()                                        // Corrige orientación EXIF (fotos de celular)
+    .resize({ width: 1200, withoutEnlargement: true })
+    .jpeg({ quality: 80 })
     .toFile(outputPath);
 
   // Reemplaza el original con el procesado
