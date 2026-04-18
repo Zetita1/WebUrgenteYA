@@ -172,7 +172,7 @@ export default function Home() {
           aria-hidden="true"
         />
 
-        <div className="relative max-w-4xl mx-auto py-16 px-4 text-center">
+        <div className="relative max-w-4xl mx-auto py-16 px-4 text-center select-none">
 
           <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1.5 rounded-full mb-6 tracking-wide uppercase border border-white/10">
             <span className="w-2 h-2 bg-green-300 rounded-full animate-pulse flex-shrink-0" />

@@ -70,12 +70,12 @@ export default function SearchBox({ className = '' }) {
 
   function handleSubmit(e) {
     e.preventDefault();
-    if (!search && !comuna) return;
     setOpen(false);
     const params = new URLSearchParams();
     if (search) params.set('search', search);
     if (comuna) params.set('comuna', comuna);
-    navigate(`/tecnicos?${params.toString()}`);
+    const qs = params.toString();
+    navigate(qs ? `/tecnicos?${qs}` : '/tecnicos');
   }
 
   function goToTech(id) {
