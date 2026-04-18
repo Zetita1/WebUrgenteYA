@@ -145,12 +145,14 @@ function ImageManager({ techId, images, onUpdate }) {
               Subiendo...
             </div>
           ) : (
-            <p className="text-sm text-gray-500">
-              Arrastra fotos o haz clic — JPG/PNG máx. 10MB — puedes subir {remaining} más
-            </p>
-            <p className="text-xs text-brand-500 font-medium mt-1">
-              💡 Puedes seleccionar varias fotos a la vez
-            </p>
+            <>
+              <p className="text-sm text-gray-500">
+                Arrastra fotos o haz clic — JPG/PNG máx. 10MB — puedes subir {remaining} más
+              </p>
+              <p className="text-xs text-brand-500 font-medium mt-1">
+                💡 Puedes seleccionar varias fotos a la vez
+              </p>
+            </>
           )}
         </div>
       )}
