@@ -145,7 +145,8 @@ export default function Home() {
     const params = new URLSearchParams();
     if (search) params.set('search', search);
     if (comuna) params.set('comuna', comuna);
-    navigate(`/tecnicos?${params.toString()}`);
+    const qs = params.toString();
+    navigate(qs ? `/tecnicos?${qs}` : '/tecnicos');
   }
 
   return (
