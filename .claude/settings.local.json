@@ -16,7 +16,8 @@
       "Bash(node -e \"require\\('./src/utils/mailer.js'\\); console.log\\('OK - mailer carga sin errores'\\)\")",
       "Bash(node -e \"require\\('./src/utils/mailer.js'\\); console.log\\('OK mailer'\\)\")",
       "WebSearch",
-      "Bash(xargs grep *)"
+      "Bash(xargs grep *)",
+      "Bash(npm run *)"
     ]
   }
 }

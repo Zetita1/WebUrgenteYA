@@ -62,6 +62,7 @@ export default function TechniciansList() {
   const [comuna, setComuna]     = useState(initialComuna);
   const [category, setCategory] = useState(initialCategory);
   const [urgent, setUrgent]     = useState(false);
+  const [sort, setSort]         = useState(searchParams.get('sort') || '');
 
   const fetchTechnicians = useCallback(() => {
     setLoading(true);
@@ -69,6 +70,7 @@ export default function TechniciansList() {
     if (search)   params.search   = search;
     if (comuna)   params.comuna   = comuna;
     if (category) params.category = category;
+    if (sort)     params.sort     = sort;
 
     getTechnicians(params)
       .then(r => {
@@ -78,7 +80,7 @@ export default function TechniciansList() {
       })
       .catch(() => setTechnicians([]))
       .finally(() => setLoading(false));
-  }, [search, comuna, category, urgent]);
+  }, [search, comuna, category, urgent, sort]);
 
   useEffect(() => { fetchTechnicians(); }, [fetchTechnicians]);
 
@@ -93,7 +95,7 @@ export default function TechniciansList() {
   }
 
   function clearFilters() {
-    setSearch(''); setComuna(''); setCategory(''); setUrgent(false);
+    setSearch(''); setComuna(''); setCategory(''); setUrgent(false); setSort('');
     setSearchParams({});
   }
 
@@ -190,19 +192,34 @@ export default function TechniciansList() {
                 )}
               </div>
             </div>
-            <label className="flex items-center gap-2 mt-3 cursor-pointer select-none w-fit">
-              <input
-                type="checkbox"
-                checked={urgent}
-                onChange={e => setUrgent(e.target.checked)}
-                className="rounded text-brand-500 w-4 h-4"
-              />
-              <span className="text-sm text-gray-600">Solo urgente 24h</span>
-              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-600 ml-0.5">
-                <span className="w-1.5 h-1.5 bg-red-500 rounded-full" />
-                24h
-              </span>
-            </label>
+            <div className="flex flex-wrap items-center gap-4 mt-3">
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={urgent}
+                  onChange={e => setUrgent(e.target.checked)}
+                  className="rounded text-brand-500 w-4 h-4"
+                />
+                <span className="text-sm text-gray-600">Solo urgente 24h</span>
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-600 ml-0.5">
+                  <span className="w-1.5 h-1.5 bg-red-500 rounded-full" />
+                  24h
+                </span>
+              </label>
+              <div className="flex items-center gap-2 ml-auto">
+                <span className="text-xs text-gray-400 whitespace-nowrap">Ordenar por</span>
+                <select
+                  value={sort}
+                  onChange={e => setSort(e.target.value)}
+                  className="text-sm border border-gray-200 rounded-lg px-2 py-1.5 text-gray-700 outline-none focus:ring-2 focus:ring-brand-300 bg-white"
+                >
+                  <option value="">Relevancia</option>
+                  <option value="contactados">Más contactados</option>
+                  <option value="rating">Mejor calificados</option>
+                  <option value="recientes">Más recientes</option>
+                </select>
+              </div>
+            </div>
           </form>
         </div>
 

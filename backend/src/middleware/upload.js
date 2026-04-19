@@ -1,30 +1,33 @@
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 
-const ALLOWED_MIME = [
-  'image/jpeg', 'image/jpg', 'image/png',
-  'image/webp',                        // Android / WhatsApp
-  'image/heic', 'image/heif',          // iPhone
-  'image/bmp', 'image/tiff',           // otros formatos comunes
-];
-const MAX_SIZE = 25 * 1024 * 1024; // 25MB (fotos de cámara pueden ser grandes)
+const MAX_SIZE = 25 * 1024 * 1024; // 25MB
+
+const UPLOADS_DIR = path.join(__dirname, '../../uploads/technicians');
+
+// Asegurar que el directorio existe
+if (!fs.existsSync(UPLOADS_DIR)) {
+  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+}
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../../uploads/technicians'));
+    cb(null, UPLOADS_DIR);
   },
   filename: (req, file, cb) => {
-    const ext = '.jpg'; // siempre guardamos como jpg después de procesar
-    cb(null, `${Date.now()}_${uuidv4()}${ext}`);
+    cb(null, `${Date.now()}_${uuidv4()}.jpg`);
   },
 });
 
 const fileFilter = (req, file, cb) => {
-  if (ALLOWED_MIME.includes(file.mimetype)) {
+  // Aceptar cualquier imagen — el backend convierte todo a JPEG con Sharp
+  console.log(`[upload] mimetype: ${file.mimetype} | originalname: ${file.originalname}`);
+  if (file.mimetype && file.mimetype.startsWith('image/')) {
     cb(null, true);
   } else {
-    cb(new Error('Solo se permiten imágenes JPG y PNG'), false);
+    cb(new Error(`Formato no soportado: ${file.mimetype}. Solo se permiten imágenes.`), false);
   }
 };
 

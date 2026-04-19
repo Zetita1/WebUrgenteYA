@@ -125,7 +125,7 @@ const SYNONYMS = {
 // GET lista pública de técnicos activos
 router.get('/', (req, res) => {
   const db = getDb();
-  const { comuna, category, plan, search } = req.query;
+  const { comuna, category, plan, search, sort } = req.query;
 
   const VALID_PLANS = ['free', 'premium', 'top'];
   if (plan && !VALID_PLANS.includes(plan)) {
@@ -150,9 +150,11 @@ router.get('/', (req, res) => {
            t.description, t.services_list, t.is_urgent_24h, t.status, t.plan, t.expires_at,
            t.image_url, t.price_from, t.created_at,
            ROUND(AVG(r.rating), 1) as avg_rating,
-           COUNT(r.id) as review_count
+           COUNT(r.id) as review_count,
+           COUNT(DISTINCT cc.id) as contacts_total
     FROM technicians t
     LEFT JOIN reviews r ON r.technician_id = t.id AND r.status = 'approved'
+    LEFT JOIN contact_clicks cc ON cc.technician_id = t.id
     WHERE t.status = 'active'
   `;
   const params = [];
@@ -182,13 +184,36 @@ router.get('/', (req, res) => {
     }
   }
 
-  // Ordenar por plan + relevancia + urgencia
-  query += ` GROUP BY t.id ORDER BY
-    CASE t.plan WHEN 'top' THEN 3 WHEN 'premium' THEN 2 ELSE 1 END DESC,
-    t.is_urgent_24h DESC,
-    avg_rating DESC,
-    t.created_at DESC
-    LIMIT 120`;
+  // Ordenar
+  const VALID_SORTS = ['contactados', 'rating', 'recientes'];
+  const safeSort = sort && VALID_SORTS.includes(sort) ? sort : null;
+
+  if (safeSort === 'contactados') {
+    query += ` GROUP BY t.id ORDER BY
+      CASE t.plan WHEN 'top' THEN 3 WHEN 'premium' THEN 2 ELSE 1 END DESC,
+      contacts_total DESC,
+      avg_rating DESC
+      LIMIT 120`;
+  } else if (safeSort === 'rating') {
+    query += ` GROUP BY t.id ORDER BY
+      CASE t.plan WHEN 'top' THEN 3 WHEN 'premium' THEN 2 ELSE 1 END DESC,
+      avg_rating DESC,
+      contacts_total DESC
+      LIMIT 120`;
+  } else if (safeSort === 'recientes') {
+    query += ` GROUP BY t.id ORDER BY
+      CASE t.plan WHEN 'top' THEN 3 WHEN 'premium' THEN 2 ELSE 1 END DESC,
+      t.created_at DESC
+      LIMIT 120`;
+  } else {
+    // Default: plan + urgencia + rating
+    query += ` GROUP BY t.id ORDER BY
+      CASE t.plan WHEN 'top' THEN 3 WHEN 'premium' THEN 2 ELSE 1 END DESC,
+      t.is_urgent_24h DESC,
+      avg_rating DESC,
+      t.created_at DESC
+      LIMIT 120`;
+  }
 
   const technicians = db.prepare(query).all(...params);
   res.json(technicians);
@@ -336,12 +361,18 @@ router.post('/:id/images', authMiddleware, (req, res, next) => {
   const failed = [];
   for (const file of req.files) {
     try {
+      console.log(`[upload] procesando: ${file.filename} | path: ${file.path} | size: ${file.size}`);
+      if (!file.filename || !file.path) {
+        console.error('[upload] file.filename o file.path undefined:', file);
+        failed.push(file.originalname || 'desconocido');
+        continue;
+      }
       await processImage(file.path);
       db.prepare('INSERT INTO technician_images (technician_id, filename) VALUES (?, ?)').run(req.params.id, file.filename);
       saved.push(file.filename);
     } catch (err) {
       console.error('Error procesando imagen:', err.message);
-      failed.push(file.originalname || file.filename);
+      failed.push(file.originalname || file.filename || 'desconocido');
       try { require('fs').unlinkSync(file.path); } catch {}
     }
   }

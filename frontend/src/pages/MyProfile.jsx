@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import PWAInstallBanner from '../components/PWAInstallBanner';
 import { getMyTechnicianProfile, updateMyProfile, uploadImages, deleteImage, reorderImages } from '../services/api';
 
 const ADMIN_WHATSAPP = import.meta.env.VITE_ADMIN_WHATSAPP || '';
@@ -716,6 +717,7 @@ export default function MyProfile() {
       </div>
 
       <Footer />
+      <PWAInstallBanner />
     </div>
   );
 }

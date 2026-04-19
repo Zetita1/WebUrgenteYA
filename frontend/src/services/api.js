@@ -68,6 +68,7 @@ export const adminGetPendingReviewsCount = () => api.get('/admin/reviews/pending
 export const adminApproveReview = (id) => api.post(`/admin/reviews/${id}/approve`);
 export const adminGetTechnicianHistory = (id) => api.get(`/admin/technicians/${id}/history`);
 export const adminGetContactsMonthly = () => api.get('/admin/stats/contacts-monthly');
+export const adminGetTechniciansMonthly = () => api.get('/admin/stats/technicians-monthly');
 
 // Backups
 export const adminListBackups = () => api.get('/admin/backups');

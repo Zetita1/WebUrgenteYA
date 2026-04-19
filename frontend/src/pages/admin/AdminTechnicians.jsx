@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   adminGetTechnicians, adminApproveTechnician, adminRejectTechnician,
   adminExpireTechnician, adminDeleteTechnician, adminActivateTechnician,
-  adminVerifyTechnician, adminGetStats, adminGetContactsMonthly
+  adminVerifyTechnician, adminGetStats, adminGetContactsMonthly, adminGetTechniciansMonthly
 } from '../../services/api';
 
 const STATUS_BADGE = {
@@ -93,15 +93,15 @@ function exportCSV(technicians) {
 
 const MONTH_NAMES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 
-function ContactChart({ data }) {
+function BarChart({ data, title, color, totalLabel }) {
   if (!data || data.length === 0) return null;
   const max = Math.max(...data.map(d => d.count), 1);
   const total = data.reduce((s, d) => s + d.count, 0);
   return (
-    <div className="card p-5 mb-6">
+    <div className="card p-5">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-bold text-gray-900 text-sm">Contactos WhatsApp por mes</h3>
-        <span className="text-xs text-gray-400">{total} total (6 meses)</span>
+        <h3 className="font-bold text-gray-900 text-sm">{title}</h3>
+        <span className="text-xs text-gray-400">{total} {totalLabel}</span>
       </div>
       <div className="flex items-end gap-2" style={{ height: '80px' }}>
         {data.map(d => {
@@ -111,9 +111,9 @@ function ContactChart({ data }) {
             <div key={d.month} className="flex-1 flex flex-col items-center gap-1 h-full justify-end">
               <span className="text-xs text-gray-500 leading-none">{d.count}</span>
               <div
-                className="w-full bg-brand-400 rounded-t-sm"
+                className={`w-full rounded-t-sm ${color}`}
                 style={{ height: `${heightPct}%` }}
-                title={`${d.month}: ${d.count} contactos`}
+                title={`${d.month}: ${d.count}`}
               />
               <span className="text-xs text-gray-400 leading-none">{MONTH_NAMES[parseInt(month) - 1]}</span>
             </div>
@@ -128,6 +128,7 @@ export default function AdminTechnicians() {
   const [technicians, setTechnicians] = useState([]);
   const [stats, setStats] = useState(null);
   const [contactsMonthly, setContactsMonthly] = useState([]);
+  const [techniciansMonthly, setTechniciansMonthly] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('');
   const [filterPlan, setFilterPlan] = useState('');
@@ -154,10 +155,12 @@ export default function AdminTechnicians() {
       adminGetTechnicians(params),
       adminGetStats(),
       adminGetContactsMonthly(),
-    ]).then(([techRes, statsRes, contactsRes]) => {
+      adminGetTechniciansMonthly(),
+    ]).then(([techRes, statsRes, contactsRes, techMonthlyRes]) => {
       setTechnicians(techRes.data);
       setStats(statsRes.data);
       setContactsMonthly(contactsRes.data);
+      setTechniciansMonthly(techMonthlyRes.data);
     }).catch(() => {}).finally(() => setLoading(false));
   }, [filterStatus, filterPlan, search]);
 
@@ -284,8 +287,21 @@ export default function AdminTechnicians() {
         </div>
       )}
 
-      {/* Gráfico de contactos mensuales */}
-      <ContactChart data={contactsMonthly} />
+      {/* Gráficos mensuales */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+        <BarChart
+          data={techniciansMonthly}
+          title="Maestros nuevos por mes"
+          color="bg-green-400"
+          totalLabel="total (12 meses)"
+        />
+        <BarChart
+          data={contactsMonthly}
+          title="Contactos WhatsApp por mes"
+          color="bg-brand-400"
+          totalLabel="total (6 meses)"
+        />
+      </div>
 
       {/* Pendientes de aprobación */}
       {pending.length > 0 && !filterStatus && (

@@ -296,6 +296,19 @@ router.get('/stats/contacts-monthly', (req, res) => {
   res.json(rows);
 });
 
+// GET maestros nuevos por mes (últimos 12 meses)
+router.get('/stats/technicians-monthly', (req, res) => {
+  const db = getDb();
+  const rows = db.prepare(`
+    SELECT strftime('%Y-%m', created_at) as month, COUNT(*) as count
+    FROM technicians
+    WHERE created_at >= date('now', '-12 months')
+    GROUP BY month
+    ORDER BY month ASC
+  `).all();
+  res.json(rows);
+});
+
 // GET lista de comunas y categorías únicas
 router.get('/options', (req, res) => {
   const db = getDb();
