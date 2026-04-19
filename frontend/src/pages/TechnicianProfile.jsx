@@ -220,8 +220,8 @@ export default function TechnicianProfile() {
         </button>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Sidebar — arriba en móvil, derecha en desktop */}
-          <div className="md:col-span-1 md:order-2">
+          {/* Sidebar — abajo en móvil, derecha en desktop */}
+          <div className="md:col-span-1 order-2 md:order-2">
             <div className="card p-5 md:sticky md:top-16">
               <h2 className="font-bold text-gray-900 mb-4">Contactar</h2>
 
@@ -287,8 +287,8 @@ export default function TechnicianProfile() {
             </div>
           </div>
 
-          {/* Columna principal */}
-          <div className="md:col-span-2 md:order-1 space-y-6">
+          {/* Columna principal — primero en móvil */}
+          <div className="md:col-span-2 order-1 md:order-1 space-y-6">
             {/* Card perfil */}
             <div className="card overflow-hidden">
               {tech.image_url && (
@@ -317,12 +317,13 @@ export default function TechnicianProfile() {
                       <span>{tech.comuna}</span>
                     </div>
                     {tech.covers_rm === 1 && (
-                      <div className="flex items-center gap-1 text-green-600 text-xs font-semibold mt-1">
+                      <span className="inline-flex items-center gap-1.5 bg-green-100 text-green-700 text-xs font-bold px-2.5 py-1 rounded-full border border-green-300 mt-2">
                         <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
-                        Atiende toda la Región Metropolitana
-                      </div>
+                        Disponible en toda la RM
+                      </span>
                     )}
                   </div>
                   <div className="flex flex-col gap-2">
