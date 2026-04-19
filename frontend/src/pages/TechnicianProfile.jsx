@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -92,6 +92,7 @@ export default function TechnicianProfile() {
   const [tech, setTech] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [lightbox, setLightbox] = useState(null); // índice de imagen abierta o null
   const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '', reviewer_name: '', _hp: '' });
   const [reviewSent, setReviewSent] = useState(false);
   const [reviewError, setReviewError] = useState('');
@@ -380,17 +381,90 @@ export default function TechnicianProfile() {
               <div className="card p-4">
                 <h2 className="font-bold text-gray-900 mb-3">Galería de trabajos</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {tech.images.map(img => (
-                    <img
+                  {tech.images.map((img, idx) => (
+                    <button
                       key={img.filename}
-                      src={`/uploads/technicians/${img.filename}`}
-                      alt="Trabajo"
-                      className="w-full h-32 object-cover rounded-lg"
-                    />
+                      onClick={() => setLightbox(idx)}
+                      className="relative group overflow-hidden rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    >
+                      <img
+                        src={`/uploads/technicians/${img.filename}`}
+                        alt={`Trabajo ${idx + 1}`}
+                        className="w-full h-32 object-cover transition-transform duration-200 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200 flex items-center justify-center">
+                        <svg className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 drop-shadow-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                        </svg>
+                      </div>
+                    </button>
                   ))}
                 </div>
               </div>
             )}
+
+            {/* Lightbox */}
+            {lightbox !== null && tech.images?.length > 0 && (() => {
+              const imgs = tech.images;
+              const prev = () => setLightbox(i => (i - 1 + imgs.length) % imgs.length);
+              const next = () => setLightbox(i => (i + 1) % imgs.length);
+              return (
+                <div
+                  className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center"
+                  onClick={() => setLightbox(null)}
+                  onKeyDown={e => { if (e.key === 'Escape') setLightbox(null); if (e.key === 'ArrowLeft') prev(); if (e.key === 'ArrowRight') next(); }}
+                  tabIndex={0}
+                  ref={el => el?.focus()}
+                >
+                  {/* Botón cerrar */}
+                  <button
+                    className="absolute top-4 right-4 text-white bg-black/40 hover:bg-black/70 rounded-full p-2 transition-colors z-10"
+                    onClick={() => setLightbox(null)}
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+
+                  {/* Contador */}
+                  <div className="absolute top-4 left-1/2 -translate-x-1/2 text-white text-sm bg-black/40 px-3 py-1 rounded-full">
+                    {lightbox + 1} / {imgs.length}
+                  </div>
+
+                  {/* Flecha izquierda */}
+                  {imgs.length > 1 && (
+                    <button
+                      className="absolute left-3 sm:left-6 text-white bg-black/40 hover:bg-black/70 rounded-full p-3 transition-colors z-10"
+                      onClick={e => { e.stopPropagation(); prev(); }}
+                    >
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                  )}
+
+                  {/* Imagen */}
+                  <img
+                    src={`/uploads/technicians/${imgs[lightbox].filename}`}
+                    alt={`Trabajo ${lightbox + 1}`}
+                    className="max-w-[90vw] max-h-[85vh] object-contain rounded-lg shadow-2xl"
+                    onClick={e => e.stopPropagation()}
+                  />
+
+                  {/* Flecha derecha */}
+                  {imgs.length > 1 && (
+                    <button
+                      className="absolute right-3 sm:right-6 text-white bg-black/40 hover:bg-black/70 rounded-full p-3 transition-colors z-10"
+                      onClick={e => { e.stopPropagation(); next(); }}
+                    >
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+              );
+            })()}
 
             {/* Reseñas */}
             <div className="card p-6">
