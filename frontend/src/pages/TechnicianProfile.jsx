@@ -292,7 +292,14 @@ export default function TechnicianProfile() {
             {/* Card perfil */}
             <div className="card overflow-hidden">
               {tech.image_url && (
-                <img src={tech.image_url} alt={tech.name} className="w-full h-56 object-cover" />
+                <div className="w-full bg-gray-100 flex items-center justify-center" style={{ minHeight: '200px', maxHeight: '420px' }}>
+                  <img
+                    src={tech.image_url}
+                    alt={tech.name}
+                    className="w-full object-contain"
+                    style={{ maxHeight: '420px' }}
+                  />
+                </div>
               )}
               <div className="p-6">
                 <div className="flex items-start justify-between gap-4">

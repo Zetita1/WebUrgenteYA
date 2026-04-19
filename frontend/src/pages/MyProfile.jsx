@@ -72,9 +72,10 @@ function ImageUploader({ techId, images, onUpdate, plan }) {
     if (!files || files.length === 0) return;
     setError('');
 
-    const validFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+    // Aceptar archivos de imagen — en Android la cámara a veces envía type vacío
+    const validFiles = Array.from(files).filter(f => !f.type || f.type.startsWith('image/'));
 
-    if (validFiles.length !== files.length) {
+    if (validFiles.length === 0) {
       setError('Solo se permiten imágenes.');
       return;
     }
