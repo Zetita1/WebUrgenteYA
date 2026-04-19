@@ -104,6 +104,9 @@ export default function TechnicianCard({ tech }) {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
           <span>{tech.comuna}</span>
+          {tech.covers_rm === 1 && (
+            <span className="ml-1 text-green-600 font-semibold">· Toda la RM</span>
+          )}
         </div>
 
         {(tech.avg_rating > 0 || tech.review_count > 0) && (
