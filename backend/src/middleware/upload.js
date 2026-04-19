@@ -22,13 +22,10 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-  // Aceptar cualquier imagen — el backend convierte todo a JPEG con Sharp
-  console.log(`[upload] mimetype: ${file.mimetype} | originalname: ${file.originalname}`);
-  if (file.mimetype && file.mimetype.startsWith('image/')) {
-    cb(null, true);
-  } else {
-    cb(new Error(`Formato no soportado: ${file.mimetype}. Solo se permiten imágenes.`), false);
-  }
+  // Aceptar todo — Android cámara envía application/octet-stream, vacío, etc.
+  // Sharp valida si realmente es imagen durante el procesamiento
+  console.log(`[upload] mimetype: "${file.mimetype}" | originalname: ${file.originalname}`);
+  cb(null, true);
 };
 
 const upload = multer({

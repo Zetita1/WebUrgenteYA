@@ -72,13 +72,9 @@ function ImageUploader({ techId, images, onUpdate, plan }) {
     if (!files || files.length === 0) return;
     setError('');
 
-    // Aceptar archivos de imagen — en Android la cámara a veces envía type vacío
-    const validFiles = Array.from(files).filter(f => !f.type || f.type.startsWith('image/'));
-
-    if (validFiles.length === 0) {
-      setError('Solo se permiten imágenes.');
-      return;
-    }
+    // Sin filtro MIME — Android cámara envía application/octet-stream o vacío
+    // El backend valida con Sharp si es imagen real
+    const validFiles = Array.from(files);
 
     if (validFiles.length > remaining) {
       setError(`Solo puedes subir ${remaining} imagen${remaining !== 1 ? 'es' : ''} más (máximo ${MAX_IMAGES}).`);

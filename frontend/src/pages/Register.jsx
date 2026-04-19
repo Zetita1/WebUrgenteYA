@@ -100,9 +100,9 @@ export default function Register() {
   async function handlePhotoFiles(files) {
     if (!files || files.length === 0) return;
     setUploadError('');
-    // Aceptar archivos de imagen — en Android la cámara a veces envía type vacío
-    const valid = Array.from(files).filter(f => !f.type || f.type.startsWith('image/'));
-    if (valid.length === 0) { setUploadError('Solo se permiten imágenes.'); return; }
+    // Sin filtro MIME — Android cámara envía application/octet-stream o vacío
+    const valid = Array.from(files);
+    if (valid.length === 0) { return; }
     if (valid.length > remaining) { setUploadError(`Puedes subir ${remaining} foto${remaining !== 1 ? 's' : ''} más.`); return; }
     if (valid.find(f => f.size > 25 * 1024 * 1024)) { setUploadError('Cada imagen debe pesar menos de 25MB.'); return; }
 
