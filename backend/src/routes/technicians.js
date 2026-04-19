@@ -377,8 +377,12 @@ router.post('/:id/images', authMiddleware, (req, res, next) => {
     }
   }
 
-  if (!tech.image_url && saved.length > 0) {
-    db.prepare('UPDATE technicians SET image_url = ? WHERE id = ?').run(`/uploads/technicians/${saved[0]}`, req.params.id);
+  // Siempre actualizar image_url con la primera foto disponible
+  if (saved.length > 0) {
+    const firstImage = db.prepare('SELECT filename FROM technician_images WHERE technician_id = ? ORDER BY sort_order ASC, created_at ASC LIMIT 1').get(req.params.id);
+    if (firstImage) {
+      db.prepare('UPDATE technicians SET image_url = ? WHERE id = ?').run(`/uploads/technicians/${firstImage.filename}`, req.params.id);
+    }
   }
 
   if (saved.length === 0) {
@@ -405,7 +409,14 @@ router.delete('/:id/images/:filename', authMiddleware, (req, res) => {
 
   const fs = require('fs').promises;
   const filePath = path.join(__dirname, '../../uploads/technicians', req.params.filename);
-  fs.unlink(filePath).catch(() => {}); // No bloquea si el archivo ya no existe
+  fs.unlink(filePath).catch(() => {});
+
+  // Actualizar image_url con la primera foto que quede, o limpiar si no hay más
+  const firstImage = db.prepare('SELECT filename FROM technician_images WHERE technician_id = ? ORDER BY sort_order ASC, created_at ASC LIMIT 1').get(req.params.id);
+  db.prepare('UPDATE technicians SET image_url = ? WHERE id = ?').run(
+    firstImage ? `/uploads/technicians/${firstImage.filename}` : null,
+    req.params.id
+  );
 
   res.json({ message: 'Imagen eliminada' });
 });

@@ -248,6 +248,13 @@ router.delete('/technicians/:id/images/:filename', (req, res) => {
   const filePath = path.join(__dirname, '../../uploads/technicians', filename);
   fs.unlink(filePath, () => {});
 
+  // Actualizar image_url con la primera foto que quede, o limpiar si no hay más
+  const firstImage = db.prepare('SELECT filename FROM technician_images WHERE technician_id = ? ORDER BY sort_order ASC, created_at ASC LIMIT 1').get(id);
+  db.prepare('UPDATE technicians SET image_url = ? WHERE id = ?').run(
+    firstImage ? `/uploads/technicians/${firstImage.filename}` : null,
+    id
+  );
+
   res.json({ message: 'Imagen eliminada' });
 });
 
