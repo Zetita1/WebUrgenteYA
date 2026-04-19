@@ -105,7 +105,7 @@ export default function TechnicianCard({ tech }) {
           </svg>
           <span>{tech.comuna}</span>
           {tech.covers_rm === 1 && (
-            <span className="ml-1 text-green-600 font-semibold">· Toda la RM</span>
+            <span className="ml-1 text-green-600 font-semibold">· Disponible en toda la RM</span>
           )}
         </div>
 
