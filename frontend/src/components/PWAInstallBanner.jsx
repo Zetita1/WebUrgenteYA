@@ -6,6 +6,12 @@ export default function PWAInstallBanner() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    // Solo para maestros registrados (role = technician)
+    try {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      if (user.role !== 'technician') return;
+    } catch { return; }
+
     // Solo mostrar en móvil
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     if (!isMobile) return;
