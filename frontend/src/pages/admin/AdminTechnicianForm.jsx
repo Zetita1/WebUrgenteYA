@@ -27,7 +27,7 @@ const COMUNAS = [
 
 const EMPTY_FORM = {
   name: '', phone: '', whatsapp: '', comuna: '',
-  category: '', description: '', is_urgent_24h: false,
+  category: '', description: '', is_urgent_24h: false, covers_rm: false,
   status: 'active', plan: 'free', expires_days: 30,
   years_experience: '', price_from: '', availability: '', services_list: ''
 };
@@ -189,6 +189,7 @@ export default function AdminTechnicianForm() {
           category: t.category || '',
           description: t.description || '',
           is_urgent_24h: !!t.is_urgent_24h,
+          covers_rm: !!t.covers_rm,
           status: t.status || 'active',
           plan: t.plan || 'free',
           expires_at: t.expires_at || '',
@@ -322,7 +323,7 @@ export default function AdminTechnicianForm() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Disponibilidad</label>
                 <input type="text" value={form.availability} onChange={e => update('availability', e.target.value)} className="input-field" placeholder="Ej: Lunes a sábado, 8:00 a 20:00" maxLength={100} />
               </div>
-              <div className="col-span-2">
+              <div className="col-span-2 flex flex-col gap-2">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
                     type="checkbox"
@@ -331,6 +332,15 @@ export default function AdminTechnicianForm() {
                     className="w-4 h-4 text-brand-500 rounded"
                   />
                   <span className="text-sm text-gray-700">Servicio urgente disponible 24 horas</span>
+                </label>
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={!!form.covers_rm}
+                    onChange={e => update('covers_rm', e.target.checked)}
+                    className="w-4 h-4 text-brand-500 rounded"
+                  />
+                  <span className="text-sm text-gray-700">Atiende en toda la Región Metropolitana</span>
                 </label>
               </div>
             </div>

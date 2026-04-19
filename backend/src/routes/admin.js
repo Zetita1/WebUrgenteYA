@@ -121,13 +121,13 @@ router.put('/technicians/:id', (req, res) => {
   const tech = db.prepare('SELECT * FROM technicians WHERE id = ?').get(req.params.id);
   if (!tech) return res.status(404).json({ error: 'Técnico no encontrado' });
 
-  const { name, phone, whatsapp, comuna, category, description, is_urgent_24h,
+  const { name, phone, whatsapp, comuna, category, description, is_urgent_24h, covers_rm,
           status, plan, expires_at, years_experience, price_from, availability, services_list } = req.body;
 
   db.prepare(`
     UPDATE technicians SET
       name = ?, phone = ?, whatsapp = ?, comuna = ?, category = ?,
-      description = ?, is_urgent_24h = ?, status = ?, plan = ?, expires_at = ?,
+      description = ?, is_urgent_24h = ?, covers_rm = ?, status = ?, plan = ?, expires_at = ?,
       years_experience = ?, price_from = ?, availability = ?, services_list = ?
     WHERE id = ?
   `).run(
@@ -138,6 +138,7 @@ router.put('/technicians/:id', (req, res) => {
     category ?? tech.category,
     description ?? tech.description,
     is_urgent_24h !== undefined ? (is_urgent_24h ? 1 : 0) : tech.is_urgent_24h,
+    covers_rm !== undefined ? (covers_rm ? 1 : 0) : tech.covers_rm,
     status ?? tech.status,
     plan ?? tech.plan,
     expires_at ?? tech.expires_at,
