@@ -19,6 +19,7 @@ const reviewLimiter = rateLimit({
   message: { error: 'Has enviado demasiadas reseñas hoy. Intenta mañana.' },
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { trustProxy: false, xForwardedForHeader: false },
 });
 
 // Helper: estadísticas de contacto de un técnico
@@ -368,8 +369,10 @@ router.post('/:id/images', authMiddleware, (req, res, next) => {
         continue;
       }
       await processImage(file.path);
+      console.log(`[upload] insertando en DB: techId=${req.params.id} filename=${file.filename}`);
       db.prepare('INSERT INTO technician_images (technician_id, filename) VALUES (?, ?)').run(req.params.id, file.filename);
       saved.push(file.filename);
+      console.log(`[upload] OK guardado: ${file.filename}`);
     } catch (err) {
       console.error('Error procesando imagen:', err.message);
       failed.push(file.originalname || file.filename || 'desconocido');

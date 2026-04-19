@@ -51,6 +51,7 @@ const globalLimiter = rateLimit({
   message: { error: 'Demasiadas solicitudes, intenta más tarde' },
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { trustProxy: false, xForwardedForHeader: false },
 });
 
 const authLimiter = rateLimit({
@@ -59,6 +60,7 @@ const authLimiter = rateLimit({
   message: { error: 'Demasiados intentos, espera 15 minutos' },
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { trustProxy: false, xForwardedForHeader: false },
 });
 
 // Rate limiter específico para listado público (anti-scraping)
@@ -68,6 +70,7 @@ const publicListLimiter = rateLimit({
   message: { error: 'Demasiadas solicitudes' },
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { trustProxy: false, xForwardedForHeader: false },
 });
 
 app.use(globalLimiter);
