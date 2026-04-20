@@ -66,7 +66,7 @@ const authLimiter = rateLimit({
 // Rate limiter específico para listado público (anti-scraping)
 const publicListLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minuto
-  max: 30,
+  max: 300,
   message: { error: 'Demasiadas solicitudes' },
   standardHeaders: true,
   legacyHeaders: false,
