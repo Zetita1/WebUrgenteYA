@@ -71,14 +71,6 @@ Esto crea:
 - ✅ 20 técnicos mock con distintos estados y planes
 - ✅ Reseñas de ejemplo
 
----
-
-## Accesos
-
-| Rol | URL | Email | Contraseña |
-|-----|-----|-------|------------|
-| Admin | http://localhost:5173/admin | admin@urgenteyacl.cl | Admin123! |
-| Sitio público | http://localhost:5173 | — | — |
 
 ---
 
